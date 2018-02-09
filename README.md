@@ -271,7 +271,7 @@ The following code snippet illustrates the Attachments api.
   
 ## Technical Reference
 
-  - [JSDoc](https://pages.github.com/)
+  - [JSDoc](https://ibm-maximo-dev.github.io/maximo-nodejs-rest-client/index.html)
 
 ## License
 
