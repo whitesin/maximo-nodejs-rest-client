@@ -17,7 +17,6 @@ var AUTH_PATH = '/maximo/oslc/';
  * @param {Object}
  */
 
-
 function AuthConnector(maximoRestUrl,maximopath)
 {
 	X_PUB_PATH = maximoRestUrl.auth_scheme + '/oslc/';

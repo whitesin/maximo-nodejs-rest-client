@@ -7,12 +7,11 @@ var ResourceSet = require('./resourceset');
 
 /**
  * Business object for Maximo OSLC API
- *
+ * @param maxfactory
+ * @param mbo
+ * @returns {ResourceSet}
  * @constructor
- * @param {Object} Maximo Rest URL - e.g. http://maxadmin:maxadmin@localhost:7001
  */
-
-
 function ResourceObject(maxfactory,mbo)
 {
  	//Return a Zombie set.
@@ -20,7 +19,10 @@ function ResourceObject(maxfactory,mbo)
  	return new ResourceSet(null,cookie,maxfactory,mbo);
 };
 
-
+/**
+ *
+ * @returns {*}
+ */
 ResourceObject.prototype.name = function()
 {
     return this.mbo;

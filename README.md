@@ -268,7 +268,11 @@ The following code snippet illustrates the Attachments api.
 ## Contact
 
   - [Sachin Balagopalan](sachin.balagopalan@us.ibm.com)
+  
+## Technical Reference
+
+  - [JSDoc](https://pages.github.com/)
 
 ## License
 
-(C) Copyright IBM Corp. 2015 All Rights Reserved
+(C) Copyright IBM Corp. 2015,2018 All Rights Reserved

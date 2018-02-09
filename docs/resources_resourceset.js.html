@@ -1,4 +1,32 @@
-'use strict';
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: resources/resourceset.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: resources/resourceset.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>'use strict';
 module.exports = ResourceSet;
 var url = require('url');
 var buffer = require('buffer');
@@ -31,14 +59,14 @@ function ResourceSet(resourcemboset,cookie,maxfactory,mbo)
  	// to handle multiple constructors by sniffing them out manually.
 
  	// Constructor 1
- 	if(resourcemboset != null && cookie !== null)
+ 	if(resourcemboset != null &amp;&amp; cookie !== null)
  	{
  		//console.log("Instanciating Zombie Mbo Set - Constructor 1 ");
 	 	this.resourcemboset = resourcemboset;
 	 	return this;
 	}
  	// Constructor 2
- 	if(maxfactory != "undefined" && mbo != "undefined")
+ 	if(maxfactory != "undefined" &amp;&amp; mbo != "undefined")
  	{
 		X_PUB_PATH = maxfactory.auth_scheme + '/oslc/';
 		REST_PATH = X_PUB_PATH + 'os/';
@@ -51,7 +79,7 @@ function ResourceSet(resourcemboset,cookie,maxfactory,mbo)
 	 	this.namespace = this.islean == 1 ? "" : "spi:";
 	 	this.tenantcode = maxfactory.tenantcode;
 	 	this.maximopath = REST_PATH+this.mbo+"?lean="+this.islean;
-	 	this.maximopath = this.tenantcode ? this.maximopath+"&_tenantcode="+this.tenantcode : this.maximopath;
+	 	this.maximopath = this.tenantcode ? this.maximopath+"&amp;_tenantcode="+this.tenantcode : this.maximopath;
 	 	this.schemapath = X_PUB_PATH + 'jsonschemas/'
 	 	this.nextpageurl = "";
 	 	this.authType = maxfactory.authType
@@ -186,14 +214,14 @@ ResourceSet.prototype.size = function()
  */
 ResourceSet.prototype.select = function(selects)
 {
-	 if (selects && selects.constructor === Array)
+	 if (selects &amp;&amp; selects.constructor === Array)
 	 {
 	 	var arrayLength = selects.length;
 	 	var selectStr = '';
 	 	var relationships = {};
-		for (var i = 0; i < arrayLength; i++) {
+		for (var i = 0; i &lt; arrayLength; i++) {
 			var wh = selects[i];
-			wh = (wh.indexOf(":") < 1) ? this.namespace+wh : wh  //prepend the name spaces
+			wh = (wh.indexOf(":") &lt; 1) ? this.namespace+wh : wh  //prepend the name spaces
 			/*if(wh.indexOf(".") > 1) // check if this attribute is a relationship and construct expression
 			{
 				var wharray = wh.split(".");
@@ -205,7 +233,7 @@ ResourceSet.prototype.select = function(selects)
 		}
 	 }
 	this.select = selectStr+relationshipString(relationships);
-	if(this.select != null && this.select != "")
+	if(this.select != null &amp;&amp; this.select != "")
 	{
 		this.maximopath = getMaximoPath(this.maximopath)+"oslc.select="+encodeURIComponent(this.select);
 	}
@@ -219,9 +247,9 @@ ResourceSet.prototype.select = function(selects)
  */
 ResourceSet.prototype.where = function(prop)
 {
-	this.where = (prop.indexOf(":") < 1) ? this.namespace+prop : prop
+	this.where = (prop.indexOf(":") &lt; 1) ? this.namespace+prop : prop
 	//this.where = prop;
-	if(this.where != null && this.where != "")
+	if(this.where != null &amp;&amp; this.where != "")
 	{
 		this.maximopath = (this.maximopath.indexOf("oslc.where=") > -1)
 										? getMaximoPath(this.maximopath)+"and"+encodeURIComponent(this.where)
@@ -237,7 +265,7 @@ ResourceSet.prototype.where = function(prop)
  */
 ResourceSet.prototype.and = function(str)
 {
-	str = (str.indexOf(":") < 1) ? this.namespace+str : str
+	str = (str.indexOf(":") &lt; 1) ? this.namespace+str : str
 	this.maximopath = this.maximopath+encodeURIComponent(" and ")+encodeURIComponent(str);
 
 	return this;
@@ -251,11 +279,11 @@ ResourceSet.prototype.and = function(str)
  */
 ResourceSet.prototype.in = function(inarr,isint)
 {
-	if (inarr && inarr.constructor === Array)
+	if (inarr &amp;&amp; inarr.constructor === Array)
 	{
 		var arrayLength = inarr.length;
 	 	var inarrStr = '';
-		for (var i = 0; i < arrayLength; i++) {
+		for (var i = 0; i &lt; arrayLength; i++) {
 			var inElement = inarr[i];
 		    //inarrStr = ((arrayLength - i) > 1) ? inarrStr+'"'+inElement+'",' : inarrStr+'"'+inElement+'"';
 		    inarrStr = isint ? (((arrayLength - i) > 1) ? inarrStr+inElement+',' : inarrStr+inElement)
@@ -273,7 +301,7 @@ ResourceSet.prototype.in = function(inarr,isint)
  */
 ResourceSet.prototype.equal = function(eq)
 {
-	if(this.where != null && this.where != "")
+	if(this.where != null &amp;&amp; this.where != "")
 	{
 		//.where("spi:status").equal('"APPR"')
 		eq = (typeof(eq) === "string") ? '"'+eq+'"' : eq;
@@ -289,7 +317,7 @@ ResourceSet.prototype.equal = function(eq)
  */
 ResourceSet.prototype.notnull = function(eq)
 {
-	if(this.where != null && this.where != "")
+	if(this.where != null &amp;&amp; this.where != "")
 	{
 		var eq = '*';
 		eq = (typeof(eq) === "string") ? '"'+eq+'"' : eq;
@@ -306,12 +334,12 @@ ResourceSet.prototype.notnull = function(eq)
  */
 ResourceSet.prototype.orderby = function(oby,direction)
 {
-	if(this.where != null && this.where != "")
+	if(this.where != null &amp;&amp; this.where != "")
 	{
-		oby = (oby.indexOf(":") < 1) ? this.namespace+oby : oby
+		oby = (oby.indexOf(":") &lt; 1) ? this.namespace+oby : oby
 		var ascending = direction == 'desc'? 0 : 1
 		oby = ascending ? "+"+oby : "-"+oby;
-		this.maximopath = this.maximopath+"&oslc.orderBy="+encodeURIComponent(oby);
+		this.maximopath = this.maximopath+"&amp;oslc.orderBy="+encodeURIComponent(oby);
 	}
 	return this;
 }
@@ -324,7 +352,7 @@ ResourceSet.prototype.orderby = function(oby,direction)
 ResourceSet.prototype.pagesize = function(pagesize)
 {
 	this.pagesize = pagesize;
-	if(this.pagesize != null && this.pagesize != "")
+	if(this.pagesize != null &amp;&amp; this.pagesize != "")
 	{
 		this.maximopath = getMaximoPath(this.maximopath)+"oslc.pageSize="+encodeURIComponent(this.pagesize);
 	}
@@ -347,7 +375,7 @@ ResourceSet.prototype.action = function(action)
  *
  * @param resource
  * @param datacallback
- * @returns {*|PromiseLike<any>}
+ * @returns {*|PromiseLike&lt;any>}
  */
 ResourceSet.prototype.invoke = function(resource,datacallback)
 {
@@ -514,7 +542,7 @@ function getCRUDheaders(props,jsonbody,me,xmethod)
 
 function getMaximoPath(maxpath)
 {
-    return (maxpath.indexOf("?") < 1) ? maxpath+"?" : maxpath+"&";
+    return (maxpath.indexOf("?") &lt; 1) ? maxpath+"?" : maxpath+"&amp;";
 }
 
 
@@ -565,3 +593,26 @@ function getCRUDConnector(me)  // Singleton
 	}
 	return me.cconnect;
 }
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="Attachment.html">Attachment</a></li><li><a href="MaximoFactory.html">MaximoFactory</a></li><li><a href="Resource.html">Resource</a></li><li><a href="ResourceObject.html">ResourceObject</a></li><li><a href="ResourceSet.html">ResourceSet</a></li></ul><h3><a href="global.html">Global</a></h3>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Fri Feb 09 2018 10:42:29 GMT-0500 (EST)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

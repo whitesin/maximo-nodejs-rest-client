@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Home</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Home</h1>
+
+    
+
+
+
+    
+
+
+    <h3> </h3>
+
+
+
+
+
+
+
+
+
+
+    
+
+
+
+
+    <section>
+        <article><h1>IBM-Maximo-API</h1><p><a href="https://bluemix.net/deploy?repository=&lt;git_repository_URL&gt; # [required]"><img src="https://bluemix.net/deploy/button.png" alt="Deploy to Bluemix"></a></p>
+<h2>Introduction</h2><p>This module includes a set of fluent API's for interfacing with Maximo by providing a high level abstraction for the
+Maximo REST API's. The intent is to shield developers from low level details and help them focus on their own implementation 
+logic.</p>
+<h2>Installing</h2><p>Assumes <a href="https://nodejs.org/en/">Node</a> and <a href="http://expressjs.com/">Express</a> are installed.</p>
+<p>$ npm install --save ibm-maximo-api</p>
+<h2>Usage</h2><p>There are three main components ....</p>
+<h4>Requiring Maximo</h4><p>Like any other Node.js module the &quot;maximo&quot; module has to be loaded and assigned a local reference in your code. The easiest
+way to do this is using the built-in require() function.</p>
+<pre class="prettyprint source"><code>var Maximo = require('ibm-maximo-api');</code></pre><p>The require() function returns a prototype (class) and assigns it to the local variable Maximo in the example above. </p>
+<h4>Constructor and Authentication</h4><p>After a local reference has been assigned using the require() function you can easily instantiate an object like this:</p>
+<pre class="prettyprint source"><code>var maximo = new Maximo(options,[authcookie]);</code></pre><p>The constructor accepts two parameters:</p>
+<pre class="prettyprint source"><code>options: This parameter is REQUIRED and is represented by an object like this:
+          {
+              protocol: 'http',
+              hostname: 'qawin03.swg.usma.ibm.com',
+              port: '9080',
+              user: 'wilson',
+              password: 'wilson',
+              auth_scheme: '/maximo',
+              authtype:'maxauth',
+              islean:1
+          }
+
+authcookie: This parameter is OPTIONAL.
+            If this parameter is null the Create, Read, Update and Delete (CRUD) api's will attempt to 
+            authenticate with Maximo everytime a CRUD operation is invoked.</code></pre><p>If CRUD's are invoked multiple times it is recommended to authenticate first via the authenticate() function. If the 
+authentication is sucessful a token(jsessionID) will be returned. Save the token in the request session so it can be
+read and passed into the constructor for subsequent requests. The following code snippet illustrates a GET route that
+authenticates with maximo and stores the token inside the session.</p>
+<pre class="prettyprint source"><code>app.get('/authenticate', function(req, res)
+{
+  var maximo = new Maximo(options);
+  maximo.authenticate()
+        .then(function(jsessionid)
+        {
+          req.session.authcookie = jsessionid; // Set the token in the session so we can use it for future requests
+          res.json(jsessionid); // Handle the response after setting the token in the session.
+        })
+        .fail(function (error)
+        {
+              console.log('****** Error Code = '+error);
+        });
+}</code></pre><p>The authenticate() function is asynchronous therefore it returns a defered <a href="https://www.npmjs.com/package/q">Promise</a> 
+which is fulfilled inside the then() function or the fail() function if the promise is rejected. 
+In either case the response is handled inside the callback as illustrated in the code snippet above.</p>
+<h4>Fetch</h4><p>The following code snippet illustrates how to use the fetch API. This example returns a ResourceSet and uses all the basic
+expressions available.</p>
+<pre class="prettyprint source"><code>router.get('/test_resource_set', function(req, res)
+{
+  var maximo = new Maximo(options);
+  maximo.resourceobject(&quot;MXWODETAIL&quot;)
+        .select([&quot;wonum&quot;,&quot;description&quot;,&quot;location&quot;,&quot;status&quot;,&quot;assetnum.description&quot;])
+        .where(&quot;status&quot;).in([&quot;WAPPR&quot;,&quot;APPR&quot;])
+        .and(&quot;worktype&quot;).equal('CM')
+        .orderby('wonum','desc')
+        .pagesize(20)
+        .fetch()
+        .then(function(resourceset)
+        {
+          jsondata = resourceset.thisResourceSet();
+          res.json(jsondata);
+        })
+        .fail(function (error)
+        {
+              console.log('****** Error Code = '+error);
+        });
+});</code></pre><h4>Next Page</h4><p>The following code snippet illustrates the Paging api. In this example we are assuming that the initial set is fetched
+with the pagesize() set to a low number like 20 and stored in the session (req.session.resourcesetjson).</p>
+<pre class="prettyprint source"><code>router.get('/test_nextpage', function(req, res)
+{
+  var authcookie = req.session.authcookie;
+  var maximo = new Maximo(options,authcookie);
+  maximo.resourceobject(&quot;MXWODETAIL&quot;)
+        .nextpage(req.session.resourcesetjson) // The paged resource is stored in session
+        .then(function(resourceset)
+          {
+            if(resourceset)
+            {
+              jsondata = resourceset.JSON();
+              req.session.resourcesetjson = jsondata; /// Store it in the session
+              res.json(jsondata);
+            }
+            res.json({&quot;status&quot;:&quot;End of page&quot;})
+          })
+      .fail(function (error)
+      {
+            console.log('****** Error Code = '+error);
+      });
+});</code></pre><h4>Create</h4><p>The following code snippet illustrates the Create api. In this example we are creating a new Workorder.</p>
+<pre class="prettyprint source"><code>router.get('/test_create', function(req, res)
+{
+    var wo = '';
+    var required =
+      {
+        &quot;spi:description&quot;:&quot;Created from API&quot;,
+        &quot;spi:siteid&quot;:&quot;BEDFORD&quot;
+      }
+var authcookie = req.session.authcookie;
+var maximo = new Maximo(options,authcookie);
+
+maximo.resourceobject(&quot;MXWODETAIL&quot;)
+      .create(required,[&quot;spi:wonum&quot;,&quot;spi:description&quot;])
+      .then(function(resource)
+            {
+              jsondata = resource.JSON();
+              res.json(jsondata);
+            })
+        .fail(function (error)
+        {
+              console.log('****** Error Code = '+error);
+        });
+});</code></pre><h4>Update</h4><p>The following code snippet illustrates the Update api. In this example we are assuming the resourceset is saved
+in the session (req.session.myresourceset) and we are updating the first record in the set by passing 
+the resource URL (req.session.myresourceset[0][&quot;rdf:about&quot;]). The resource URL for the update is contained in &quot;rdf:about&quot;.</p>
+<pre class="prettyprint source"><code>router.get('/test_update', function(req, res)
+{
+  var wo = '';
+  var updates =
+  {
+      &quot;spi:description&quot;:&quot;Updated from Node API - test crudconnector&quot;,
+      &quot;spi:siteid&quot;:&quot;BEDFORD&quot;
+  }
+// Assuming myresourceset was previously placed in session
+  var authcookie = req.session.authcookie;
+  var maximo = new Maximo(options,authcookie);
+  maximo.resourceobject(&quot;MXWODETAIL&quot;)
+    .resource(req.session.myresourceset[0][&quot;rdf:about&quot;]) //Pass the URI
+    .update(updates,[&quot;spi:wonum&quot;,&quot;spi:description&quot;])
+    .then(function(resource)
+          {
+            var jsondata = resource.JSON();
+            res.json(jsondata);
+          })
+      .fail(function (error)
+      {
+            console.log('****** Error Code = '+error);
+      });
+});</code></pre><h4>Delete</h4><p>The following code snippet illustrates the Delete api. In this example we are assuming the resourceset is saved
+in the session (req.session.myresourceset) and we are updating the first record in the set by passing 
+the resource URL (req.session.myresourceset[0][&quot;rdf:about&quot;]). The resource URL for the update is contained in &quot;rdf:about&quot;.</p>
+<pre class="prettyprint source"><code>router.get('/test_update', function(req, res)
+{
+  // Assuming myresourceset was previously placed in session
+  var authcookie = req.session.authcookie;
+  var maximo = new Maximo(options,authcookie);
+  maximo.resourceobject(&quot;MXWODETAIL&quot;)
+    .resource(req.session.myresourceset[0][&quot;rdf:about&quot;]) //Pass the URI
+    .delete([&quot;spi:wonum&quot;,&quot;spi:description&quot;])
+    .then(function(resource)
+          {
+            var jsondata = resource.JSON();
+            res.json(jsondata);
+          })
+      .fail(function (error)
+      {
+            console.log('****** Error Code = '+error);
+      });
+});</code></pre><h4>Attachments</h4><p>The following code snippet illustrates the Attachments api.</p>
+<pre class="prettyprint source"><code>router.get('/test_attachments', function(req, res)
+{
+getFileBytes('attachtestt.doc')
+.then(function(fileBuffer)
+    {
+      console.log(&quot;fileBuffer &quot;+fileBuffer.length);
+      var authcookie = req.session.authcookie;
+      console.log(&quot;********* AuthCookie &quot;+authcookie);
+      var maximo = new Maximo(options,authcookie);
+      //var maximo = new Maximo(options);
+      maximo.resourceobject(&quot;MXWODETAIL&quot;)
+      .select([&quot;wonum&quot;,&quot;description&quot;,&quot;reportedby&quot;,&quot;location&quot;,&quot;status&quot;,&quot;assetnum.assetnum&quot;])
+      .where(&quot;wonum&quot;).equal('1459')
+      .pagesize(20)
+      .fetch()
+      .then(function(resourceset)
+        {
+            req.session.myresourceset = resourceset.thisResourceSet();
+            var rsrc = resourceset.resource(0);
+            var meta = {
+                          name: 'pmr.doc',
+                          description: 'PMR Recreation Steps',
+                          type: 'FILE',
+                          storeas: 'Attachment',
+                          contentype: 'application/msword'
+
+                      };
+            var attch = rsrc.attachment(meta);
+            attch.create(fileBuffer)
+            .then(function(resc)
+            {
+                console.log(&quot;Writing Attachment response &quot;);
+                //jsondata = rsrc.JSON();
+                //res.json(jsondata);
+            });
+
+        })
+      .fail(function (error)
+      {
+            console.log('****** Error Code = '+error);
+      });
+    });
+});</code></pre><h2>Contact</h2><ul>
+<li><a href="sachin.balagopalan@us.ibm.com">Sachin Balagopalan</a></li>
+</ul>
+<h2>License</h2><p>(C) Copyright IBM Corp. 2015 All Rights Reserved</p></article>
+    </section>
+
+
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="Attachment.html">Attachment</a></li><li><a href="MaximoFactory.html">MaximoFactory</a></li><li><a href="Resource.html">Resource</a></li><li><a href="ResourceObject.html">ResourceObject</a></li><li><a href="ResourceSet.html">ResourceSet</a></li></ul><h3><a href="global.html">Global</a></h3>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Fri Feb 09 2018 10:42:29 GMT-0500 (EST)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>
