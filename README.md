@@ -1,16 +1,20 @@
-# IBM-Maximo-API
+# Using Maximo Asset Management APIs
 
 [![Deploy to Bluemix](https://bluemix.net/deploy/button.png)](https://bluemix.net/deploy?repository=<git_repository_URL> # [required])
 
 ## Introduction
 
-This module includes a set of fluent API's for interfacing with Maximo by providing a high level abstraction for the
-Maximo REST API's. The intent is to shield developers from low level details and help them focus on their own implementation 
+This module includes a set of fluent APIs for interfacing with Maximo Asset Management by providing a high-level abstraction for the
+Maximo REST API's. The intent is to shield developers from low-level details and help them focus on their own implementation 
 logic.
+
+## Prerequisites
+
+Install [Node](https://nodejs.org/en/) and [Express](http://expressjs.com/).
 
 ## Installing
 
-Assumes [Node](https://nodejs.org/en/) and [Express](http://expressjs.com/) are installed.
+Install the ibm-maximo-api package by using the following command:
 
 $ npm install --save ibm-maximo-api
 
@@ -20,19 +24,17 @@ There are three main components ....
 
 
 
-#### Requiring Maximo
+#### Requiring Maximo Asset Management
 
-Like any other Node.js module the "maximo" module has to be loaded and assigned a local reference in your code. The easiest
-way to do this is using the built-in require() function.
+Like any other Node.js module, you can load the Maximo module and assign a local reference to your code by using the built-in require() function. For example, the following require() function returns a prototype (class) and assigns it to the local Maximo variable.
 
     var Maximo = require('ibm-maximo-api');
-
-The require() function returns a prototype (class) and assigns it to the local variable Maximo in the example above. 
+ 
 
 
 #### Constructor and Authentication
 
-After a local reference has been assigned using the require() function you can easily instantiate an object like this:
+After you assign a local reference by using the require() function, you can instantiate an object. For example:
 
     var maximo = new Maximo(options,[authcookie]);
 
@@ -55,10 +57,10 @@ The constructor accepts two parameters:
                 If this parameter is null the Create, Read, Update and Delete (CRUD) api's will attempt to 
                 authenticate with Maximo everytime a CRUD operation is invoked.
 
-If CRUD's are invoked multiple times it is recommended to authenticate first via the authenticate() function. If the 
-authentication is sucessful a token(jsessionID) will be returned. Save the token in the request session so it can be
+If Create, Read, Update and Delete (CRUD) APIs are invoked multiple times, you should authenticate first by using the authenticate() function. If  
+authentication is successful, a token(jsessionID) is returned. Save the token in the request session so that the token can be
 read and passed into the constructor for subsequent requests. The following code snippet illustrates a GET route that
-authenticates with maximo and stores the token inside the session.
+authenticates with Maximo Asset Management and stores the token inside the session.
 
     app.get('/authenticate', function(req, res)
     {
@@ -75,15 +77,15 @@ authenticates with maximo and stores the token inside the session.
             });
     }
 
-The authenticate() function is asynchronous therefore it returns a defered [Promise](https://www.npmjs.com/package/q) 
+Since the authenticate() function is asynchronous, a deferred [Promise](https://www.npmjs.com/package/q) is returned, 
 which is fulfilled inside the then() function or the fail() function if the promise is rejected. 
-In either case the response is handled inside the callback as illustrated in the code snippet above.
+In either case, the response is handled inside the callback.
 
 
 #### Fetch
 
 The following code snippet illustrates how to use the fetch API. This example returns a ResourceSet and uses all the basic
-expressions available.
+expressions that are available.
 
     router.get('/test_resource_set', function(req, res)
     {
@@ -108,8 +110,8 @@ expressions available.
 
 #### Next Page
 
-The following code snippet illustrates the Paging api. In this example we are assuming that the initial set is fetched
-with the pagesize() set to a low number like 20 and stored in the session (req.session.resourcesetjson).
+The following code snippet illustrates how to use the Paging API. In this example, assume that the initial set is fetched
+with the pagesize() set to a low number, like 20 and stored in the session (req.session.resourcesetjson).
 
     router.get('/test_nextpage', function(req, res)
     {
@@ -135,7 +137,7 @@ with the pagesize() set to a low number like 20 and stored in the session (req.s
 
 #### Create
 
-The following code snippet illustrates the Create api. In this example we are creating a new Workorder.
+The following code snippet illustrates how to create a work order by using the Create API. 
 
     router.get('/test_create', function(req, res)
     {
@@ -163,8 +165,8 @@ The following code snippet illustrates the Create api. In this example we are cr
 
 #### Update
 
-The following code snippet illustrates the Update api. In this example we are assuming the resourceset is saved
-in the session (req.session.myresourceset) and we are updating the first record in the set by passing 
+The following code snippet illustrates how to use the Update API. In this example, assume that the resourceset is saved
+in the session (req.session.myresourceset) and the first record in the set is updated by passing 
 the resource URL (req.session.myresourceset[0]["rdf:about"]). The resource URL for the update is contained in "rdf:about".
 
     router.get('/test_update', function(req, res)
@@ -194,8 +196,8 @@ the resource URL (req.session.myresourceset[0]["rdf:about"]). The resource URL f
 
 #### Delete
 
-The following code snippet illustrates the Delete api. In this example we are assuming the resourceset is saved
-in the session (req.session.myresourceset) and we are updating the first record in the set by passing 
+The following code snippet illustrates how to use the Delete API. In this example, assume that the resourceset is saved
+in the session (req.session.myresourceset) and the first record in the set is updated by passing 
 the resource URL (req.session.myresourceset[0]["rdf:about"]). The resource URL for the update is contained in "rdf:about".
 
     router.get('/test_update', function(req, res)
@@ -219,7 +221,7 @@ the resource URL (req.session.myresourceset[0]["rdf:about"]). The resource URL f
 
 #### Attachments
 
-The following code snippet illustrates the Attachments api.
+The following code snippet illustrates how to use the Attachments API.
 
     router.get('/test_attachments', function(req, res)
     {
